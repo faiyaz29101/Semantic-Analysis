@@ -374,35 +374,3 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 
 
 %%
-int main(int argc,char *argv[]){
-	
-	if(argc!=2){
-		printf("Please provide input file name and try again\n");
-		return 0;
-	}
-	
-	FILE *fin=fopen(argv[1],"r");
-	if(fin==NULL){
-		printf("Cannot open specified file\n");
-		return 0;
-	}
-
-	tokenprint.open("2005111_token.txt");
-	logprint.open("2005111_log.txt");
-
-	yyin= fin;
-	yylex();
-	fclose(yyin);
-
-	logprint<<symbolTable.printAllScope();
-
-	logprint<<"Total lines: "<<line_count<<endl;
-	logprint<<"Total errors: "<<error_count<<endl;
-    logprint<<"Total warnings: "<<warning_count<<endl;
-
-	tokenprint.close();
-	logprint.close();
-
-
-	return 0;
-}
