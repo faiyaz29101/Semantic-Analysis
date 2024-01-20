@@ -1,3 +1,4 @@
+#pragma once
 #include "SymbolTabledeclaration.h"
 #include <string>
 SymbolTable::SymbolTable(int bucket)

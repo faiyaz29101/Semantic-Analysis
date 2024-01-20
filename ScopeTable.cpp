@@ -1,3 +1,4 @@
+#pragma once
 #include "ScopeTabledeclaration.h"
 #include<string.h>
 ScopeTable::ScopeTable(int bucket){

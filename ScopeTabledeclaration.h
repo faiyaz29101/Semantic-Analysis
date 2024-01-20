@@ -1,5 +1,8 @@
+
+#pragma once
+
 #include <iostream>
-#include "SymbleInfo.h"
+#include "SymbleInfodeclaration.h"
 using namespace std;
 
 class ScopeTable{

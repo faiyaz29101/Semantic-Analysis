@@ -1,5 +1,8 @@
+#pragma once
 #include<iostream>
-#include "ScopeTable.h"
+
+
+#include "ScopeTabledeclaration.h"
 using namespace std;
 
 
@@ -24,3 +27,4 @@ class SymbolTable{
     bool findfromcurrent(string s);
 
 };
+

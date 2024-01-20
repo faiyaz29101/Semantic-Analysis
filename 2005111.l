@@ -7,7 +7,9 @@
 %{
 #include<iostream>
 #include <fstream>
-#include "SymbolTable.h"
+#include "SymbolTabledeclaration.h"
+
+#include "y.tab.h"
 
 using namespace std;
 
@@ -26,7 +28,7 @@ int temp_line = 0;
 
 
 int bucket_size = 10;
-SymbolTable symbolTable(bucket_size);
+// SymbolTable symbolTable(bucket_size);
 
 
 string UpperCase(string s){
@@ -55,7 +57,6 @@ char processChar(const char* s){
 
 %}
 
-KEYWORD if|else|while|for|do|break|char|int|float|double|return|void|switch|case|default|continue
 LETTER [a-zA-Z]
 DIGIT [0-9]
 WHITESPACE [ \t]
@@ -71,119 +72,237 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 
 
 %%
+"if" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return IF;
+}
+"else" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return ELSE;
+}
+"for" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return FOR;
+}
+"while" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return WHILE;
+}
+"do" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return DO;
+}
+"break" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return BREAK;
+}
+"char" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return CHAR;
+}
+"double" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return DOUBLE;
+}
+"return" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "RETURN");
+    return RETURN;
+}
+"switch" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return SWITCH;
+}
+"case" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return CASE;
+}
+"default" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return DEFAULT;
+}
+"continue" {
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return CONTINUE;
+}
+"printf"	{
+    yylval.symbleInfo =  new SymbleInfo(yytext, "KEYWORD");
+    return PRINTLN;
+}
+
+"int" { 
+	yylval.symbleInfo = new  SymbleInfo(yytext, "INT"); 
+	return INT;
+}
+"float" { 
+	yylval.symbleInfo = new  SymbleInfo(yytext, "FLOAT"); 
+	return FLOAT;
+}
+"void" { 
+	yylval.symbleInfo = new  SymbleInfo(yytext, "VOID"); 
+	return VOID;
+}
 
 
-{KEYWORD} {
+
+
+
+ /* {KEYWORD} {
 		tokenprint << "<" << UpperCase(yytext) << ", " << yytext << ">"<<endl;
 		logprint << "Line# " << line_count << ": Token <"<< UpperCase(yytext)<<"> Lexeme "<<yytext<<" found" << endl;
-	}
+	}  */
 {INTEGER} {
-	tokenprint << "<" << "CONST_INT" << ", " << yytext << ">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_INT>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//tokenprint << "<" << "CONST_INT" << ", " << yytext << ">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_INT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "INT");
+    return INT;
 }
 {FLOAT} {
-	tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "FLOAT");
+    return FLOAT;
 }
 {EXPONENT1} {
-	tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "FLOAT");
+    return FLOAT;
 }
 {EXPONENT2} {
-	tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//tokenprint << "<" << "CONST_FLOAT" << ", " << yytext << ">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "FLOAT");
+    return FLOAT;
 }
 {CHARACTER_LITERALS1} {
-	tokenprint << "<" << "CONST_CHAR" << ", " << processChar(yytext) << ">"<<endl;
+	//tokenprint << "<" << "CONST_CHAR" << ", " << processChar(yytext) << ">"<<endl;
    // cout<<yytext <<'    ' << processChar1(yytext)<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_CHAR>"<<" Lexeme "<<processChar(yytext)<<" found"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_CHAR>"<<" Lexeme "<<processChar(yytext)<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "CHAR");
+    return CHAR;
 }
 {CHARACTER_LITERALS2} {
-	tokenprint << "<" << "CONST_CHAR" << ", " << processChar(yytext) << ">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<CONST_CHAR>"<<" Lexeme "<<processChar(yytext)<<" found"<<endl;
+	//tokenprint << "<" << "CONST_CHAR" << ", " << processChar(yytext) << ">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_CHAR>"<<" Lexeme "<<processChar(yytext)<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "CHAR");
+    return CHAR;
 }
 {WHITESPACE} {
 
 }
 "+"|"-" {
-    tokenprint<<"<ADDOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<ADDOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<ADDOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<ADDOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "ADDOP");
+    return ADDOP;
 }
 "*"|"/"|"%"  {
-    tokenprint<<"<MULOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<MULOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<MULOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<MULOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "MULOP");
+    return MULOP;
 }
 "++"|"--"  {
-    tokenprint<<"<INCOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<INCOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<INCOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<INCOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "INCOP");
+    return INCOP;
 }
 "<"|"<="|">"|">="|"=="|"!="  {
-    tokenprint<<"<RELOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<RELOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<RELOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<RELOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "RELOP");
+    return RELOP;
 }
 "="  {
-    tokenprint<<"<ASSIGNOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<ASSIGNOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<ASSIGNOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<ASSIGNOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "ASSIGNOP");
+    return ASSIGNOP;
 }
 "&&"|"||"  {
-    tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "BITOP");
+    return BITOP;
 }
 "&"|"|"|"^"|"<<"|">>" {
-	tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "BITOP");
+    return BITOP;
 }
 
 "!"  {
-    tokenprint<<"<NOT, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<NOT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<NOT, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<NOT>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "NOT");
+    return NOT;
 }
 "("  {
-    tokenprint<<"<LPAREN, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<LPAREN>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<LPAREN, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<LPAREN>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "LPAREN");
+    return LPAREN;
 }
 ")"  {
-    tokenprint<<"<RPAREN, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<RPAREN>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<RPAREN, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<RPAREN>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "RPAREN");
+    return RPAREN;
 }
 "{"  {
-    tokenprint<<"<LCURL, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<LCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
-	//logprint<<symbolTable.printAllScope();
-    symbolTable.enterScope();
+    //tokenprint<<"<LCURL, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<LCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
+	////logprint<<symbolTable.printAllScope();
+   // symbolTable.enterScope();
+   yylval.symbleInfo = new SymbleInfo(yytext, "LCURL");
+    return LCURL;
 }
 "}"  {
-    tokenprint<<"<RCURL, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<RCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
-	symbolTable.exitScope();
-  //  logprint<<symbolTable.printAllScope();
+    //tokenprint<<"<RCURL, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<RCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
+	//symbolTable.exitScope();
+    //logprint<<symbolTable.printAllScope();
+    yylval.symbleInfo = new SymbleInfo(yytext, "RCURL");
+    return RCURL;
 }
 "["  {
-    tokenprint<<"<LSQUARE, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<LSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<LSQUARE, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<LSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "LSQUARE");
+    return LTHIRD;
 }
 "]"  {
-    tokenprint<<"<RSQUARE, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<RSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<RSQUARE, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<RSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "RSQUARE");
+    return RTHIRD;
 }
 ","  {
-    tokenprint<<"<COMMA, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<COMMA>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<COMMA, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<COMMA>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "COMMA");
+    return COMMA;
 }
 ";"  {
-    tokenprint<<"<SEMICOLON, "<<yytext<<">"<<endl;
-    logprint<<"Line# "<< line_count <<": Token " <<"<SEMICOLON>"<<" Lexeme "<<yytext<<" found"<<endl;
+    //tokenprint<<"<SEMICOLON, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<SEMICOLON>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "SEMICOLON");
+    return SEMICOLON;
 }
 
 {IDENTIFIERS} {
-		tokenprint << "<" << "ID" << ", " << yytext << ">"<<endl;
-		logprint << "Line# " << line_count << ": Token <"<< "ID"<<"> Lexeme "<<yytext<<" found" << endl;
-        if(!symbolTable.findfromcurrent(yytext)){
-            symbolTable.add(yytext, "ID");
-		    logprint<<symbolTable.printAllScope();
-        }else{
-            logprint<<"\t"<<yytext<< " already exists in the current ScopeTable"<<endl;
-        }
+		//tokenprint << "<" << "ID" << ", " << yytext << ">"<<endl;
+		//logprint << "Line# " << line_count << ": Token <"<< "ID"<<"> Lexeme "<<yytext<<" found" << endl;
+        yylval.symbleInfo = new SymbleInfo(yytext, "ID");
+        return ID;
+        // if(!symbolTable.findfromcurrent(yytext)){
+        //   //  symbolTable.add(yytext, "ID");
+		//     //logprint<<symbolTable.printAllScope();
+        // }else{
+        //     //logprint<<"\t"<<yytext<< " already exists in the current ScopeTable"<<endl;
+        // }
 
 	}
 
@@ -203,8 +322,8 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 <SINGLE_COMMENT_STATE>.*\n {
     com+=yytext;
     com.erase(com.length()-1);
-//    tokenprint<<"<SINGLE LINE COMMENT, "<<com<<">"<<endl;
-    logprint<<"Line# "<< temp_line <<": Token " <<"<SINGLE LINE COMMENT>"<<" Lexeme "<<com<<" found"<<endl;
+//    //tokenprint<<"<SINGLE LINE COMMENT, "<<com<<">"<<endl;
+    //logprint<<"Line# "<< temp_line <<": Token " <<"<SINGLE LINE COMMENT>"<<" Lexeme "<<com<<" found"<<endl;
     line_count++;
     BEGIN INITIAL;
 }
@@ -229,12 +348,12 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 }
 <MULTI_COMMENT_STATE>.*\*\/ {
     com+=yytext;
-    logprint<<"Line# "<< temp_line <<": Token " <<"<MULTI LINE COMMENT>"<<" Lexeme "<<com<<" found"<<endl;
+    //logprint<<"Line# "<< temp_line <<": Token " <<"<MULTI LINE COMMENT>"<<" Lexeme "<<com<<" found"<<endl;
     BEGIN INITIAL;
 }
 <MULTI_COMMENT_STATE><<EOF>> {
     error_count++;
-    logprint<<"Error at line# "<<line_count<<": UNFINISHED_COMMENT "<<com<<endl;
+    //logprint<<"Error at line# "<<line_count<<": UNFINISHED_COMMENT "<<com<<endl;
     BEGIN INITIAL;
     //line_count++;
 }
@@ -268,13 +387,13 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 
 <STRING_STATE>[\r]?\n {
     error_count++;
-    logprint<<"Error at line# "<<line_count<<": UNFINISHED_STRING "<<string_log<<endl;
+    //logprint<<"Error at line# "<<line_count<<": UNFINISHED_STRING "<<string_log<<endl;
     line_count+=lc+1;
     BEGIN INITIAL;
 }
 <STRING_STATE><<EOF>> {
     error_count++;
-    logprint<<"Error at line# "<<line_count<<": UNFINISHED_STRING "<<string_log<<endl;
+    //logprint<<"Error at line# "<<line_count<<": UNFINISHED_STRING "<<string_log<<endl;
     line_count++;
     BEGIN INITIAL;
 }
@@ -312,12 +431,14 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     string_log+="\"";
     string_token+="\"";
     if(check_string==0){
-    tokenprint<<"<SINGLE LINE STRING, "<<string_token<<">"<<endl;
-    logprint<<"Line# "<< temp_line <<": Token " <<"<SINGLE LINE STRING>"<<" Lexeme "<<string_log<<" found"<<endl;
+    //tokenprint<<"<SINGLE LINE STRING, "<<string_token<<">"<<endl;
+    //logprint<<"Line# "<< temp_line <<": Token " <<"<SINGLE LINE STRING>"<<" Lexeme "<<string_log<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(string_log, "SINGLE LINE STRING");
     line_count+=lc-1;
     }else{
-    tokenprint<<"<MULTI LINE STRING, "<<string_token<<">"<<endl;
-    logprint<<"Line# "<< temp_line <<": Token " <<"<MULTI LINE STRING>"<<" Lexeme "<<string_log<<" found"<<endl;
+    //tokenprint<<"<MULTI LINE STRING, "<<string_token<<">"<<endl;
+    //logprint<<"Line# "<< temp_line <<": Token " <<"<MULTI LINE STRING>"<<" Lexeme "<<string_log<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(string_log, "MULTI LINE STRING");
     check_string=0;
     line_count+=lc;
     }
@@ -326,49 +447,45 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 
 
 [0-9]*\.[0-9]*?[\.0-9]* {
-    logprint <<"Error at line# "<<line_count<<": TOO_MANY_DECIMAL_POINTS "<<yytext<<endl;
+    //logprint <<"Error at line# "<<line_count<<": TOO_MANY_DECIMAL_POINTS "<<yytext<<endl;
     error_count++;
 }
 [0-9]*\.?[0-9]*[E][/+\-]?[\.0-9]* {
-    logprint << "Error at line# "<<line_count<<": ILLFORMED_NUMBER "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": ILLFORMED_NUMBER "<<yytext<<endl;
     error_count++;
 }
 [0-9]+[a-zA-Z _]+ {
-    logprint << "Error at line# "<<line_count<<": INVALID_ID_SUFFIX_NUM_PREFIX "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": INVALID_ID_SUFFIX_NUM_PREFIX "<<yytext<<endl;
     error_count++;
 }
 \'[a-zA-Z]+[a-zA-z0-9 ]+\' {
-    logprint << "Error at line# "<<line_count<<": MULTICHAR_CONST_CHAR "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": MULTICHAR_CONST_CHAR "<<yytext<<endl;
     error_count++;
 }
 \'[a-zA-Z]+";"?\n {
     string s = yytext;
     s.erase(s.length()-1);
-    logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<s<<endl;
+    //logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<s<<endl;
     error_count++;
     line_count++;
 }
 \'";"?\n {
     string s = yytext;
     s.erase(s.length()-1);
-    logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<s<<endl;
+    //logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<s<<endl;
     error_count++;
     line_count++;
 }
 \'\\\' {
-    logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": UNFINISHED_CONST_CHAR "<<yytext<<endl;
     error_count++;
 }
 \'\' {
-    logprint << "Error at line# "<<line_count<<": EMPTY_CONST_CHAR "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": EMPTY_CONST_CHAR "<<yytext<<endl;
     error_count++;
 }
-
-
-
-
 . {
-    logprint << "Error at line# "<<line_count<<": UNRECOGNIZED_CHAR "<<yytext<<endl;
+    //logprint << "Error at line# "<<line_count<<": UNRECOGNIZED_CHAR "<<yytext<<endl;
     error_count++;
 }
 

@@ -1,3 +1,4 @@
+#pragma once
 #include "SymbleInfodeclaration.h"
 SymbleInfo :: SymbleInfo(const string &name, const string &type){
     this->name = name;
