@@ -1,6 +1,7 @@
 %{
     #include<iostream>
     #include<fstream>
+    #include<vector>
     //#include "SymbolTable.h"
     #include "SymbolTabledeclaration.h"
 
@@ -8,10 +9,15 @@
 
     ofstream logout;
     ofstream errorout;
+    ofstream parseTree;
 
     SymbolTable *symbolTable = new SymbolTable(11);
     extern int line_count;
     extern FILE *yyin;
+
+    void yyerror(char *s){
+        logout << "Syntax Error" << endl;
+    }
 
     void grammar_output(string top, string bottom){
         logout<<top<<" : "<<bottom<<endl;
@@ -19,6 +25,19 @@
     
     void yyerror(string msg){
         errorout<<"Line# "<<line_count<<": "<<msg<<endl;
+    }
+    void print(SymbleInfo* sym, int line_no, int depth){
+        for(int k=0; k<depth;k++){
+            parseTree<<" ";
+        }
+        parseTree<<sym->getname()<<" : "<<sym->gettype()<<endl;
+        vector<SymbleInfo*>  l = sym->getList();
+        depth++;
+        if(l.size()!=0){
+            for(int i = 0; i<l.size(); i++){
+                    print(l[i], line_no, depth);
+            }
+        }
     }
 
 
@@ -33,9 +52,8 @@
 %union{
     SymbleInfo *symbleInfo;
 }
-%token<symbleInfo> IF ELSE LOWER_THAN_ELSE FOR WHILE DO BREAK CHAR DOUBLE RETURN BITOP LSQUARE RSQUARE SWITCH CASE DEFAULT CONTINUE PRINTLN INCOP DECOP ASSIGNOP NOT LPAREN RPAREN WHITESPACE LCURL RCURL COMMA SEMICOLON INT FLOAT VOID CONST_INT CONST_FLOAT ID ADDOP MULOP RELOP LOGICOP CONST_CHAR
+%token<symbleInfo> IF ELSE LOWER_THAN_ELSE FOR WHILE DO BREAK CHAR DOUBLE RETURN LSQUARE RSQUARE SWITCH CASE DEFAULT CONTINUE PRINTLN INCOP DECOP ASSIGNOP NOT LPAREN RPAREN WHITESPACE LCURL RCURL COMMA SEMICOLON INT FLOAT VOID CONST_INT CONST_FLOAT ID ADDOP MULOP RELOP LOGICOP CONST_CHAR
 %type<symbleInfo> start program unit func_declaration func_definition parameter_list compound_statement var_declaration type_specifier declaration_list statements statement expression_statement variable expression logic_expression rel_expression simple_expression term unary_expression factor argument_list arguments
-
 
 %left LOGICOP
 %left RELOP
@@ -47,384 +65,513 @@
 %%
 start : program {
    // grammar_output("start","program");
-    $$ = new SymbleInfo("","start");
-    cout <<"Here"<<endl;
+    $$ = new SymbleInfo("start","program");
+    //cout <<"Here"<<endl;
+    $$->addToList($1);
+    $$->setline(line_count);
+    //cout<<"OK";
+    print($$, 1, 0);
     //////lexeme_details_out("")
 }
 program : program unit {
     grammar_output("program","program unit");
-    //$$ = new SymbleInfo("","program");
+    $$ = new SymbleInfo("program","program unit");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 | unit {
     grammar_output("program","unit");
-    //$$ = new SymbleInfo("","program");
+    $$ = new SymbleInfo("program","unit");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 ;
 unit : var_declaration {
     grammar_output("unit","var_declaration");
-    //$$ = new SymbleInfo("","unit");
+    $$ = new SymbleInfo("unit","var_declaration");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | func_declaration {
     grammar_output("unit","func_declaration");
-    //$$ = new SymbleInfo("","unit");
+    $$ = new SymbleInfo("unit","func_declaration");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | func_definition {
     grammar_output("unit","func_definition");
-    //$$ = new SymbleInfo("","unit");
+    $$ = new SymbleInfo("unit","func_definition");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 ;
 func_declaration : type_specifier ID LPAREN parameter_list RPAREN SEMICOLON {
-    ////lexeme_details_out($2->gettype(), $2->getname());
-    ////lexeme_details_out($3->gettype(), $3->getname());
-    ////lexeme_details_out($5->gettype(), $5->getname());
-    ////lexeme_details_out($6->gettype(), $6->getname());
-
     grammar_output("func_declaration","type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
-    //$$ = new SymbleInfo("","func_declaration");
+    $$ = new SymbleInfo("func_declaration","type_specifier ID LPAREN parameter_list RPAREN SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->addToList($6);
+    $$->setline(line_count);
 }
 | type_specifier ID LPAREN RPAREN SEMICOLON {
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
-    //lexeme_details_out($5->gettype(), $5->getname());
     grammar_output("func_declaration","type_specifier ID LPAREN RPAREN SEMICOLON");
-    //$$ = new SymbleInfo("","func_declaration");
+    $$ = new SymbleInfo("func_declaration","type_specifier ID LPAREN RPAREN SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->setline(line_count);
 }
 ;
 func_definition : type_specifier ID LPAREN parameter_list RPAREN compound_statement {
-    cout<<"now"<<endl;
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($5->gettype(), $5->getname());
     grammar_output("func_definition","type_specifier ID LPAREN parameter_list RPAREN compound_statement");
-    //$$ = new SymbleInfo("","func_definition");
+    $$ = new SymbleInfo("func_definition","type_specifier ID LPAREN parameter_list RPAREN compound_statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->addToList($6);
+    $$->setline(line_count);
 }
 | type_specifier ID LPAREN RPAREN compound_statement {
-    cout<<"now1"<<endl;
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("func_definition","type_specifier ID LPAREN RPAREN compound_statement");
-    //$$ = new SymbleInfo("","func_definition");
+    $$ = new SymbleInfo("func_definition","type_specifier ID LPAREN RPAREN compound_statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->setline(line_count);
 }
 ;
 parameter_list : parameter_list COMMA type_specifier ID {
-    cout<<"now2"<<endl;
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("parameter_list","parameter_list COMMA type_specifier ID");
-    //$$ = new SymbleInfo("","parameter_list");
+    $$ = new SymbleInfo("parameter_list","parameter_list COMMA type_specifier ID");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->setline(line_count);
 }
 | parameter_list COMMA type_specifier {
-    cout<<"now3"<<endl;
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("parameter_list","parameter_list COMMA type_specifier");
-    //$$ = new SymbleInfo("","parameter_list");
+    $$ = new SymbleInfo("parameter_list","parameter_list COMMA type_specifier");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 | type_specifier ID {
-    cout<<"now4"<<endl;
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("parameter_list","type_specifier ID");
-    //$$ = new SymbleInfo("","parameter_list");
+    $$ = new SymbleInfo("parameter_list","type_specifier ID");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 | type_specifier {
-    cout<<"now5"<<endl;
     grammar_output("parameter_list","type_specifier");
-    //$$ = new SymbleInfo("","parameter_list");
+    $$ = new SymbleInfo("parameter_list","type_specifier");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 ;
 compound_statement : LCURL statements RCURL {
-    
-    //lexeme_details_out($1->gettype(), $1->getname());
+    //cout<<"here-1"<<endl;
     symbolTable->enterScope();
-    //lexeme_details_out($3->gettype(), $3->getname());
     logout<<symbolTable->printAllScope()<<endl;
     symbolTable->exitScope();
     grammar_output("compound_statement","LCURL statements RCURL");
-    //$$ = new SymbleInfo("","compound_statement");
+    $$ = new SymbleInfo("compound_statement","LCURL statements RCURL");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 | LCURL RCURL {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    cout << "test\n";
     symbolTable->enterScope();
-    //lexeme_details_out($2->gettype(), $2->getname());
     symbolTable->exitScope();
     logout<<symbolTable->printCurrentScope()<<endl;
     grammar_output("compound_statement","LCURL RCURL");
-    //$$ = new SymbleInfo("","compound_statement");
+    $$ = new SymbleInfo("compound_statement","LCURL RCURL");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 ;
 var_declaration : type_specifier declaration_list SEMICOLON {
-    //lexeme_details_out($3->gettype(), $3->getname());
     grammar_output("var_declaration","type_specifier declaration_list SEMICOLON");
-    //$$ = new SymbleInfo("","var_declaration");
+    $$ = new SymbleInfo("var_declaration","type_specifier declaration_list SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 type_specifier : INT {
-    //lexeme_details_out($1->gettype(), $1->getname());
     symbolTable->insert(*$1);
     grammar_output("type_specifier","INT");
-    //$$ = new SymbleInfo("","type_specifier");
+    $$ = new SymbleInfo("type_specifier","INT");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | FLOAT {
-    //lexeme_details_out($1->gettype(), $1->getname());
     symbolTable->insert(*$1);
     grammar_output("type_specifier","FLOAT");
-    //$$ = new SymbleInfo("","type_specifier");
+    $$ = new SymbleInfo("type_specifier","FLOAT");
+    $$->addToList($1);
 }
 | VOID {
-    //lexeme_details_out($1->gettype(), $1->getname());
     symbolTable->insert(*$1);
     grammar_output("type_specifier","VOID");
-    //$$ = new SymbleInfo("","type_specifier");
+    $$ = new SymbleInfo("type_specifier","VOID");
+    $$->addToList($1);
 }
 ;
 declaration_list : declaration_list COMMA ID {
-  //  cout<<"fkjw";
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
     grammar_output("declaration_list","declaration_list COMMA ID");
-    //$$ = new SymbleInfo("","declaration_list");
+    $$ = new SymbleInfo("declaration_list","declaration_list COMMA ID");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 | declaration_list COMMA ID LSQUARE CONST_INT RSQUARE {
-  //  cout<<"hsfh";
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
-    //lexeme_details_out($5->gettype(), $5->getname());
-    //lexeme_details_out($6->gettype(), $6->getname());
     grammar_output("declaration_list","declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
-    //$$ = new SymbleInfo("","declaration_list");
+    $$ = new SymbleInfo("declaration_list","declaration_list COMMA ID LSQUARE CONST_INT RSQUARE");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->addToList($6);
+    $$->setline(line_count);
 }
 | ID {
-//    cout<<"hjskdfjhks";
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("declaration_list","ID");
-    //$$ = new SymbleInfo("","declaration_list");
+    $$ = new SymbleInfo("declaration_list","ID");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | ID LSQUARE CONST_INT RSQUARE {
- //   cout<<"ei";
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("declaration_list","ID LSQUARE CONST_INT RSQUARE");
-    //$$ = new SymbleInfo("","declaration_list");
+    $$ = new SymbleInfo("declaration_list","ID LSQUARE CONST_INT RSQUARE");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->setline(line_count);
 }
 ;
 statements : statement {
     grammar_output("statements","statement");
-    //$$ = new SymbleInfo("","statements");
+    $$ = new SymbleInfo("statements","statement");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | statements statement {
     grammar_output("statements","statements statement");
-    //$$ = new SymbleInfo("","statements");
+    $$ = new SymbleInfo("statements","statements statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 ;
 statement : var_declaration {
     grammar_output("statement","var_declaration");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","var_declaration");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | expression_statement {
+    //cout<<"here0"<<endl;
     grammar_output("statement","expression_statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","expression_statement");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | compound_statement {
     grammar_output("statement","compound_statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","compound_statement");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | FOR LPAREN expression_statement expression_statement expression RPAREN statement {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($8->gettype(), $8->getname());
     grammar_output("statement","FOR LPAREN expression_statement expression_statement expression RPAREN statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","FOR LPAREN expression_statement expression_statement expression RPAREN statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->addToList($6);
+    $$->addToList($7);
+    $$->setline(line_count);
 }
 | IF LPAREN expression RPAREN statement {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("statement","IF LPAREN expression RPAREN statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","IF LPAREN expression RPAREN statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->setline(line_count);
+
 }
 | IF LPAREN expression RPAREN statement ELSE statement {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
-    //lexeme_details_out($6->gettype(), $6->getname());
     grammar_output("statement","IF LPAREN expression RPAREN statement ELSE statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","IF LPAREN expression RPAREN statement ELSE statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->addToList($6);
+    $$->addToList($7);
+    $$->setline(line_count);
 }
 | WHILE LPAREN expression RPAREN statement {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("statement","WHILE LPAREN expression RPAREN statement");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","WHILE LPAREN expression RPAREN statement");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->setline(line_count);
 }
 | PRINTLN LPAREN ID RPAREN SEMICOLON {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
-    //lexeme_details_out($5->gettype(), $5->getname());
     grammar_output("statement","PRINTLN LPAREN ID RPAREN SEMICOLON");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","PRINTLN LPAREN ID RPAREN SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->addToList($5);
+    $$->setline(line_count);
 }
 | RETURN expression SEMICOLON {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
     grammar_output("statement","RETURN expression SEMICOLON");
-    //$$ = new SymbleInfo("","statement");
+    $$ = new SymbleInfo("statement","RETURN expression SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 expression_statement : SEMICOLON {
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("expression_statement","SEMICOLON");
-    //$$ = new SymbleInfo("","expression_statement");
+    $$ = new SymbleInfo("expression_statement","SEMICOLON");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | expression SEMICOLON {
-    //lexeme_details_out($2->gettype(), $2->getname());
-    cout<<"in rule expression_statement:   expression SEMICOLON"<<endl;
+    //cout<<"here1"<<endl;
     grammar_output("expression_statement","expression SEMICOLON");
-    
-    //$$ = new SymbleInfo("","expression_statement");
+    $$ = new SymbleInfo("expression_statement","expression SEMICOLON");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 ;
 variable : ID {
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("variable","ID");
-    //$$ = new SymbleInfo("","variable");
+    $$ = new SymbleInfo("variable","ID");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | ID LSQUARE expression RSQUARE {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("variable","ID LSQUARE expression RSQUARE");
-    //$$ = new SymbleInfo("","variable");
+    $$ = new SymbleInfo("variable","ID LSQUARE expression RSQUARE");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->setline(line_count);
 }
 ;
 expression : logic_expression {
+    //cout<<"here2"<<endl;
     grammar_output("expression","logic_expression");
-    //$$ = new SymbleInfo("","expression");
+    $$ = new SymbleInfo("expression","logic_expression");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | variable ASSIGNOP logic_expression {
-    cout<<"expression : variable ASSIGNOP logic_expression 555"<<endl;
-    // lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("expression","variable ASSIGNOP logic_expression");
-    // $$ = new SymbleInfo("","expression");
-    //cout << "again\n";
+    $$ = new SymbleInfo("expression","variable ASSIGNOP logic_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 logic_expression : rel_expression {
+    //cout<<"here3"<<endl;
     grammar_output("logic_expression","rel_expression");
-    cout<<"logic_expression : rel_expression\n";
-    //$$ = new SymbleInfo("","logic_expression");
+    $$ = new SymbleInfo("","logic_expression");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | rel_expression LOGICOP rel_expression {
-    //lexeme_details_out($2->gettype(), $2->getname());
+    //cout<<"here4"<<endl;
     grammar_output("logic_expression","rel_expression LOGICOP rel_expression");
-    //$$ = new SymbleInfo("","logic_expression");
+    $$ = new SymbleInfo("logic_expression","rel_expression LOGICOP rel_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 rel_expression : simple_expression {
+    //cout<<"here5"<<endl;
     grammar_output("rel_expression","simple_expression");
-    //$$ = new SymbleInfo("","rel_expression");
+    $$ = new SymbleInfo("rel_expression","simple_expression");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | simple_expression RELOP simple_expression {
-    //lexeme_details_out($2->gettype(), $2->getname());
+    //cout<<"here6"<<endl;
     grammar_output("rel_expression","simple_expression RELOP simple_expression");
-    //$$ = new SymbleInfo("","rel_expression");
+    $$ = new SymbleInfo("rel_expression","simple_expression RELOP simple_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 simple_expression : term {
+    //cout<<"here7"<<endl;
     grammar_output("simple_expression","term");
-    //$$ = new SymbleInfo("","simple_expression");
+    $$ = new SymbleInfo("simple_expression","term");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | simple_expression ADDOP term {
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("simple_expression","simple_expression ADDOP term");
-    //$$ = new SymbleInfo("","simple_expression");
+    $$ = new SymbleInfo("simple_expression","simple_expression ADDOP term");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 term : unary_expression {
+    //cout<<"here8"<<endl;
     grammar_output("term","unary_expression");
-    //$$ = new SymbleInfo("","term");
+    $$ = new SymbleInfo("term","unary_expression");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | term MULOP unary_expression {
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("term","term MULOP unary_expression");
-    //$$ = new SymbleInfo("","term");
+    $$ = new SymbleInfo("term","term MULOP unary_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 ;
 unary_expression : ADDOP unary_expression {
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("unary_expression","ADDOP unary_expression");
-    //$$ = new SymbleInfo("","unary_expression");
+    $$ = new SymbleInfo("unary_expression","ADDOP unary_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 | NOT unary_expression {
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("unary_expression","NOT unary_expression");
-    //$$ = new SymbleInfo("","unary_expression");
+    $$ = new SymbleInfo("unary_expression","NOT unary_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 | factor {
+    //cout<<"here9"<<endl;
     grammar_output("unary_expression","factor");
-    //$$ = new SymbleInfo("","unary_expression");
+    $$ = new SymbleInfo("unary_expression","factor");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 ;
 factor : variable {
+    //cout<<"here10"<<endl;
     grammar_output("factor","variable");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","variable");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | ID LPAREN argument_list RPAREN {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($2->gettype(), $2->getname());
-    //lexeme_details_out($4->gettype(), $4->getname());
     grammar_output("factor","ID LPAREN argument_list RPAREN");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","ID LPAREN argument_list RPAREN");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->addToList($4);
+    $$->setline(line_count);
 }
 | LPAREN expression RPAREN {
-    //lexeme_details_out($1->gettype(), $1->getname());
-    //lexeme_details_out($3->gettype(), $3->getname());
     grammar_output("factor","LPAREN expression RPAREN");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","LPAREN expression RPAREN");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 | CONST_INT {
-    //lexeme_details_out($1->gettype(), $1->getname());
+   // cout<<"here10"<<endl;
     grammar_output("factor","CONST_INT");
-    cout<<"factor : const_int\n";
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","CONST_INT");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | CONST_FLOAT {
-    //lexeme_details_out($1->gettype(), $1->getname());
     grammar_output("factor","CONST_FLOAT");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","CONST_FLOAT");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
 | variable INCOP {
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("factor","variable INCOP");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","variable INCOP");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 | variable DECOP {
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("factor","variable DECOP");
-    //$$ = new SymbleInfo("","factor");
+    $$ = new SymbleInfo("factor","variable DECOP");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->setline(line_count);
 }
 ;
 argument_list : arguments {
     grammar_output("argument_list","arguments");
-    //$$ = new SymbleInfo("","argument_list");
+    $$ = new SymbleInfo("argument_list","arguments");
+    $$->addToList($1);
+    $$->setline(line_count);
 }
-|
 ;
 arguments : arguments COMMA logic_expression {
-    //lexeme_details_out($2->gettype(), $2->getname());
     grammar_output("arguments","arguments COMMA logic_expression");
-    //$$ = new SymbleInfo("","arguments");
+    $$ = new SymbleInfo("arguments","arguments COMMA logic_expression");
+    $$->addToList($1);
+    $$->addToList($2);
+    $$->addToList($3);
+    $$->setline(line_count);
 }
 | logic_expression {
     grammar_output("arguments","logic_expression");
-    //$$ = new SymbleInfo("","arguments");
+   // $$ = new SymbleInfo("","arguments");
+   // $$->addToList($1);
+   // $$->setline(line_count);
 }
 WHITESPACE
 
@@ -442,6 +589,7 @@ int main(int argc,char *argv[]){
 	}
 
 	logout.open("log.txt");
+    parseTree.open("parseTree.txt");
 	/* errout.open("error.txt"); */
 
 	yyin=fp;

@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+#include <vector>
 using namespace std;
 
 class SymbleInfo{
@@ -7,6 +8,8 @@ class SymbleInfo{
     string name;
     string type;
     SymbleInfo* next = nullptr;
+    vector <SymbleInfo*> symbolinfolist;
+    int line;
     
     public:
     SymbleInfo();
@@ -17,6 +20,9 @@ class SymbleInfo{
     SymbleInfo* getnext();
     void setnext(SymbleInfo* next);
     void print();
-
+    void addToList(SymbleInfo* symbleinfo);
+    vector<SymbleInfo*> getList();
+    void setline(int line);
+    int getline();
 
 };

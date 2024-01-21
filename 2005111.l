@@ -173,6 +173,7 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 		logprint << "Line# " << line_count << ": Token <"<< UpperCase(yytext)<<"> Lexeme "<<yytext<<" found" << endl;
 	}  */
 {INTEGER} {
+    //cout<<"there0"<<endl;
 	//tokenprint << "<" << "CONST_INT" << ", " << yytext << ">"<<endl;
     //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_INT>"<<" Lexeme "<<yytext<<" found"<<endl;
     yylval.symbleInfo = new SymbleInfo(yytext, "CONST_INT");
@@ -198,11 +199,10 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_FLOAT>"<<" Lexeme "<<yytext<<" found"<<endl;
     yylval.symbleInfo = new SymbleInfo(yytext, "CONST_FLOAT");
     lexeme_details_out("CONST_FLOAT", yytext);
-    return COST_FLOAT;
+    return CONST_FLOAT;
 }
 {CHARACTER_LITERALS1} {
 	//tokenprint << "<" << "CONST_CHAR" << ", " << processChar(yytext) << ">"<<endl;
-   // cout<<yytext <<'    ' << processChar1(yytext)<<endl;
     //logprint<<"Line# "<< line_count <<": Token " <<"<CONST_CHAR>"<<" Lexeme "<<processChar(yytext)<<" found"<<endl;
     yylval.symbleInfo = new SymbleInfo(yytext, "CHAR");
     lexeme_details_out("CHAR", yytext);
@@ -256,16 +256,9 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 "&&"|"||"  {
     //tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
     //logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
-    yylval.symbleInfo = new SymbleInfo(yytext, "BITOP");
-    lexeme_details_out("BITOP", yytext);
-    return BITOP;
-}
-"&"|"|"|"^"|"<<"|">>" {
-	//tokenprint<<"<BITOP, "<<yytext<<">"<<endl;
-    //logprint<<"Line# "<< line_count <<": Token " <<"<BITOP>"<<" Lexeme "<<yytext<<" found"<<endl;
-    yylval.symbleInfo = new SymbleInfo(yytext, "BITOP");
-    lexeme_details_out("BITOP", yytext);
-    return BITOP;
+    yylval.symbleInfo = new SymbleInfo(yytext, "LOGICOP");
+    lexeme_details_out("LOGICOP", yytext);
+    return LOGICOP;
 }
 
 "!"  {
@@ -290,6 +283,7 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     return RPAREN;
 }
 "{"  {
+    //cout<<"there340"<<endl;
     //tokenprint<<"<LCURL, "<<yytext<<">"<<endl;
     //logprint<<"Line# "<< line_count <<": Token " <<"<LCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
 	////logprint<<symbolTable.printAllScope();
@@ -299,6 +293,7 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     return LCURL;
 }
 "}"  {
+    //cout<<"there0"<<endl;
     //tokenprint<<"<RCURL, "<<yytext<<">"<<endl;
     //logprint<<"Line# "<< line_count <<": Token " <<"<RCURL>"<<" Lexeme "<<yytext<<" found"<<endl;
 	//symbolTable.exitScope();
@@ -308,18 +303,18 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     return RCURL;
 }
 "["  {
-    //tokenprint<<"<LTHIRD, "<<yytext<<">"<<endl;
-    //logprint<<"Line# "<< line_count <<": Token " <<"<LTHIRD>"<<" Lexeme "<<yytext<<" found"<<endl;
-    yylval.symbleInfo = new SymbleInfo(yytext, "LTHIRD");
-    lexeme_details_out("LTHIRD", yytext);
-    return LTHIRD;
+    //tokenprint<<"<LSQUARE, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<LSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "LSQUARE");
+    lexeme_details_out("LSQUARE", yytext);
+    return LSQUARE;
 }
 "]"  {
-    //tokenprint<<"<RTHIRD, "<<yytext<<">"<<endl;
-    //logprint<<"Line# "<< line_count <<": Token " <<"<RTHIRD>"<<" Lexeme "<<yytext<<" found"<<endl;
-    yylval.symbleInfo = new SymbleInfo(yytext, "RTHIRD");
-    lexeme_details_out("RTHIRD", yytext);
-    return RTHIRD;
+    //tokenprint<<"<RSQUARE, "<<yytext<<">"<<endl;
+    //logprint<<"Line# "<< line_count <<": Token " <<"<RSQUARE>"<<" Lexeme "<<yytext<<" found"<<endl;
+    yylval.symbleInfo = new SymbleInfo(yytext, "RSQUARE");
+    lexeme_details_out("RSQUARE", yytext);
+    return RSQUARE;
 }
 ","  {
     //tokenprint<<"<COMMA, "<<yytext<<">"<<endl;
@@ -333,7 +328,6 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     //logprint<<"Line# "<< line_count <<": Token " <<"<SEMICOLON>"<<" Lexeme "<<yytext<<" found"<<endl;
     yylval.symbleInfo = new SymbleInfo(yytext, "SEMICOLON");
     lexeme_details_out("SEMICOLON", yytext);
-    cout << "found semi\n";
     return SEMICOLON;
 }
 
@@ -408,12 +402,10 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
 <STRING_STATE>\\t  {
      string_log+="\\t";
      string_token+="\t";
-    // cout<<"HEJERFJ" <<string_token<<endl;
      line_count++;
 }
 <STRING_STATE>[a-zA-Z0-9 ]* {
     string_log+=yytext;
-  //  cout<<yytext<<endl;
     string_token+=yytext;
 }
 <STRING_STATE>\\\n  {
@@ -422,7 +414,6 @@ CHARACTER_LITERALS2 \'(\\[ntrabv0\"])\'
     string_token+='\t';
     line_count++;
     check_string=1;
-   // cout<<"hewh"<<endl;
 }
 
 <STRING_STATE>\\r  {
