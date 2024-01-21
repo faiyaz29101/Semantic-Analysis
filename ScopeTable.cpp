@@ -53,8 +53,9 @@ string ScopeTable::gettempstring(){
 string ScopeTable::print(){
     tempstring = "\tScopeTable# " + getID();
     for(int i=0; i<bucket; i++){
-        tempstring.append("\n\t"+to_string(i+1));
+       // tempstring.append("\n\t"+to_string(i+1));
         if(table[i] != nullptr){
+            tempstring.append("\n\t"+to_string(i+1));
             //tempstring.append(" --> ");
             SymbleInfo *pt = table[i];
             // cout<<pt->getname();
